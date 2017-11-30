@@ -5,3 +5,95 @@ output: html_notebook
 
 This is an attempt a replecating Hlynur Davíð Hlynsson's [Finding Magic: The Gathering archetypes with Latent Dirichlet Allocation](https://medium.com/@hlynurd/finding-magic-the-gathering-archetypes-with-latent-dirichlet-allocation-729112d324a6) article using R.
 
+
+First thing we'll do is import the libaries that we'll need.  Once that's done, we'll download the CSV file from MTGDecks.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+###First run#####
+#install.packages(readr)
+#install.packages(splitstackshape)
+#install.packages(tidyr)
+
+library(readr)
+
+Standard_raw <-  read_csv(url("https://mtgdecks.net/decks/csv/Standard"), col_names = FALSE)
+
+
+```
+
+Now that we have the data, it's time to and convert it into a dataframe.  We'll do this by attatching 
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+
+
+
+
+
+data_long_Standard <- cSplit(data_long_Standard, 'Cards', sep="|", type.convert=FALSE)
+
+data_long_Standard$Cards_1 <- as.integer(data_long_Standard$Cards_1)
+
+data_long_Standard$Cards_2 <- paste("Deck Number",data_long_Standard$Deck_Number,"|",data_long_Standard$Cards_2)
+ 
+data_long_Standard <-rep(data_long_Standard$Cards_2, times= data_long_Standard$Cards_1)
+data_long_Standard <- as.data.frame(data_long_Standard)
+
+Long_Standard <- cSplit(data_long_Standard, 'data_long_Standard', sep="|", type.convert=FALSE)
+data_long_Standard <- data_long_Standard[,c(1,3)]
+data_long_Standard <- data_long_Standard[complete.cases(data_long_Standard), ]
+
+
+
+
+```
+
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(splitstackshape)
+library(tidyr)
+###Creatign an empty dataframe to hold the downloaded decks:
+Standard <- data.frame(1:500)
+
+names(Standard)[names(Standard) == 'X1.500'] <- "Deck_Number"
+
+
+Standard$Cards <- Standard_raw$X1
+
+Standard$Cards <- str_replace_all(Standard$Cards,"([\\d]+)", "\\|\\1" )
+
+
+Standard <- cSplit(Standard, 'Cards', sep="|", type.convert=FALSE)
+
+Standard <- Standard[,c(1,3:40)]
+
+Standard <- gather(Standard,Deck_Number, Cards,  Cards_02:Cards_39, factor_key=TRUE)
+
+Standard <- Standard[,c(1,3)]
+Standard <- Standard[complete.cases(Standard), ]
+
+Standard$Cards <- str_replace_all(Standard$Cards,"([\\d]+)", "\\1\\|" )
+
+
+Standard <- cSplit(Standard, 'Cards', sep="|", type.convert=FALSE)
+
+Standard$Cards_1 <- as.integer(Standard$Cards_1)
+
+
+
+names(Standard)[names(Standard) == 'Deck_Number'] <- "document"
+names(Standard)[names(Standard) == 'Cards_1'] <- "count"
+names(Standard)[names(Standard) == 'Cards_2'] <- "term"
+```
+
+
+
+
+```{r}
+library(tidytext)
+```
+
