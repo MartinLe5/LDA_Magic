@@ -83,12 +83,24 @@ Standard <- cSplit(Standard, 'Cards', sep="|", type.convert=FALSE)
 
 Standard$Cards_1 <- as.integer(Standard$Cards_1)
 
-
+Standard <- melt(Standard,id=c("Deck_Number","Cards_2"))
+Standard <- Standard[,c(1,2,4)]
 
 names(Standard)[names(Standard) == 'Deck_Number'] <- "document"
-names(Standard)[names(Standard) == 'Cards_1'] <- "count"
+names(Standard)[names(Standard) == 'value'] <- "count"
 names(Standard)[names(Standard) == 'Cards_2'] <- "term"
 
+
+Standard <- melt(Standard,id=c("document","term"))
+
+Standard <- dcast(Standard, document ~ term, sum)
+Standard <- melt(Standard,id=c("document"))
+
+Standard$value[Standard$value == 0] = NA
+Standard <- Standard[complete.cases(Standard), ] 
+
+names(Standard)[names(Standard) == 'value'] <- "count"
+names(Standard)[names(Standard) == 'variable'] <- "term"
 
 ```
 
