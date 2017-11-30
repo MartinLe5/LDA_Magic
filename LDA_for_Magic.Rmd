@@ -88,6 +88,8 @@ Standard$Cards_1 <- as.integer(Standard$Cards_1)
 names(Standard)[names(Standard) == 'Deck_Number'] <- "document"
 names(Standard)[names(Standard) == 'Cards_1'] <- "count"
 names(Standard)[names(Standard) == 'Cards_2'] <- "term"
+
+
 ```
 
 
@@ -95,5 +97,9 @@ names(Standard)[names(Standard) == 'Cards_2'] <- "term"
 
 ```{r}
 library(tidytext)
+library(topicmodels)
+
+ap_lda <- LDA(Standard, k = 2, control = list(seed = 1234))
+ap_lda
 ```
 
