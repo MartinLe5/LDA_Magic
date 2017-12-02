@@ -1,6 +1,8 @@
 ---
 title: "LDA for Magic in R"
-output: html_notebook
+output:
+  html_notebook: default
+  pdf_document: default
 ---
 
 This is an attempt a replecating Hlynur Davíð Hlynsson's [Finding Magic: The Gathering archetypes with Latent Dirichlet Allocation](https://medium.com/@hlynurd/finding-magic-the-gathering-archetypes-with-latent-dirichlet-allocation-729112d324a6) article using R.
@@ -31,6 +33,10 @@ Now that we have the data, it's time to and convert it into a dataframe.  We'll 
 library(splitstackshape)
 library(stringr)
 library(tidyr)
+library(dplyr)
+library(reshape2)
+library(tidytext)
+library(topicmodels)
 ###Creatign an empty dataframe to hold the downloaded decks:
 Standard <- data.frame(1:500)
 
@@ -60,7 +66,7 @@ Standard$Cards_1 <- as.integer(Standard$Cards_1)
 
 Standard <- melt(Standard,id=c("Deck_Number","Cards_2"))
 Standard <- Standard[,c(1,2,4)]
-Standard <- cast_dtm(Standard, Deck_Number ~ Cards_2)
+Standard <- cast_dtm(Standard,  Deck_Number, Cards_2, value)
 
 
 ```
@@ -69,15 +75,31 @@ Standard <- cast_dtm(Standard, Deck_Number ~ Cards_2)
 
 
 ```{r}
-library(tidytext)
-library(topicmodels)
 
-Standard <- tidy(Standard)
 
-ap_lda <- LDA(Standard, k = 5, control = list(seed = 1234))
+
+
+ap_lda <- LDA(Standard, k = 6, control = list(seed = 1234))
 ap_lda
 
 ap_topics <- tidy(ap_lda, matrix = "beta")
 ap_topics
+```
+
+```{r}
+library(ggplot2)
+
+ap_top_terms <- ap_topics %>%
+  group_by(topic) %>%
+  top_n(20, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+ap_top_terms %>%
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
 ```
 
